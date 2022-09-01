@@ -7,9 +7,10 @@
                  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks" 
                  xmlns:System="clr-namespace:System;assembly=mscorlib"
                  xmlns:StyleAlias="clr-namespace:System.Windows.Input;assembly=WindowsBase"
-                 xmlns:local="clr-namespace:GameClicker" 
                  xmlns:viewmodels="clr-namespace:GameClicker.ViewModels"
                  xmlns:wpf="clr-namespace:GameClicker.WPF"
+                 xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+                 Dialog:DialogParticipation.Register="{Binding}"
                  d:DataContext="{d:DesignInstance Type=viewmodels:MainViewModel, IsDesignTimeCreatable=True}"
                  Title="Game Clicker"
                  TitleCharacterCasing="Normal"
@@ -118,7 +119,7 @@
                           Grid.ColumnSpan="2"
                           Margin="5"
                           BorderThickness="1" 
-                          ItemsSource="{Binding KeyConfigs}" CanUserAddRows="True" AutoGenerateColumns="False" ColumnWidth="*" GridLinesVisibility="Horizontal"
+                          ItemsSource="{Binding KeyConfigs}" CanUserAddRows="False" AutoGenerateColumns="False" ColumnWidth="*" GridLinesVisibility="Horizontal"
                            >
                     <!--AlternationCount="2" AlternatingRowBackground="AliceBlue"-->
                     <DataGrid.Resources>

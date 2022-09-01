@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Windows;
+using GameClicker.Services;
 using GameClicker.ViewModels;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GameClicker
@@ -35,11 +37,11 @@ namespace GameClicker
             var services = new ServiceCollection();
 
             // Services
-            //services.AddSingleton<IFilesService, FilesService>();
+            services.AddSingleton<IFileManager, FileManager>();
             //services.AddSingleton<ISettingsService, SettingsService>();
             //services.AddSingleton<IClipboardService, ClipboardService>();
             //services.AddSingleton<IShareService, ShareService>();
-            //services.AddSingleton<IEmailService, EmailService>();
+            services.AddSingleton<IDialogCoordinator, DialogCoordinator>();
 
             // Viewmodels
             services.AddTransient<MainViewModel>();

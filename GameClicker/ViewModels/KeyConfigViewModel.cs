@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,10 @@ namespace GameClicker.ViewModels
         private Key m_Key;
         private int m_Frequency;
         private int m_InputCount;
-        private bool m_IsActive;
+        private bool m_IsActive = true;
         private int m_Progress;
 
+        [JsonIgnore]
         public List<Key> Keys
         {
             get;

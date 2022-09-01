@@ -1,10 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GameClicker.Collections;
+using GameClicker.Services;
+using MahApps.Metro.Controls.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Windows.Input;
 
 namespace GameClicker.ViewModels
 {
@@ -14,7 +18,9 @@ namespace GameClicker.ViewModels
         private ProcessViewModel m_SelectedProcess;
         private string m_FilterText;
         private Predicate<object> m_Filter;
-        private ObservableCollection<KeyConfigViewModel> m_KeyConfigs;
+        private KeyConfigCollection m_KeyConfigs;
+        private bool m_IsRunning;
+        private IDialogCoordinator m_DialogCoordinator;
 
         public IRelayCommand LoadProcessCommand { get; }
         public IRelayCommand AddKeyCommand { get; }
@@ -32,7 +38,11 @@ namespace GameClicker.ViewModels
         public ProcessViewModel SelectedProcess
         {
             get => m_SelectedProcess;
-            set => SetProperty(ref m_SelectedProcess, value);
+            set
+            {
+                SetProperty(ref m_SelectedProcess, value);
+                StartCommand.NotifyCanExecuteChanged();
+            }
         }
 
         public string FilterText
@@ -56,16 +66,24 @@ namespace GameClicker.ViewModels
             }
         }
 
-        public ObservableCollection<KeyConfigViewModel> KeyConfigs
+        public KeyConfigCollection KeyConfigs
         {
             get => m_KeyConfigs;
             set => SetProperty(ref m_KeyConfigs, value);
         }
 
-        public MainViewModel()
+        public bool IsRunning
         {
+            get => m_IsRunning;
+            set => SetProperty(ref m_IsRunning, value);
+        }
+
+        public MainViewModel(IDialogCoordinator instance)
+        {
+            m_DialogCoordinator = instance;
+
             LocalProcess = new ObservableCollection<ProcessViewModel>();
-            KeyConfigs = new ObservableCollection<KeyConfigViewModel>();
+            KeyConfigs = new KeyConfigCollection();
 
             LoadProcessCommand = new RelayCommand(LoadProcess);
             LoadProcess();
@@ -74,8 +92,8 @@ namespace GameClicker.ViewModels
 
             LoadCommand = new RelayCommand(Load);
             SaveCommand = new RelayCommand(Save);
-            StartCommand = new RelayCommand(Start, ()=> SelectedProcess != null);
-            StopCommand = new RelayCommand(Stop);
+            StartCommand = new RelayCommand(Start, () => SelectedProcess != null);
+            StopCommand = new RelayCommand(Stop, () => m_IsRunning);
         }
 
         private void LoadProcess()
@@ -99,16 +117,28 @@ namespace GameClicker.ViewModels
 
         private void AddKey()
         {
-
+            KeyConfigs.AddNewItem();
         }
 
-        private void Load()
+        private async void Load()
         {
+            IFileManager fileManager = (IFileManager)App.Current.Services.GetService(typeof(IFileManager));
+            KeyConfigCollection keyConfigs;
 
+            if (fileManager.Load(out keyConfigs))
+            {
+                KeyConfigs = keyConfigs;
+                await m_DialogCoordinator.ShowMessageAsync(this, "Chargement", "Le chargement a été effectué avec succès.", MessageDialogStyle.Affirmative);
+            }
         }
 
-        private void Save()
-        { 
+        private async void Save()
+        {
+            IFileManager fileManager = (IFileManager)App.Current.Services.GetService(typeof(IFileManager));
+            if (fileManager.Save(KeyConfigs))
+            {
+                await m_DialogCoordinator.ShowMessageAsync(this, "Sauvegarde", "La sauvegarde a été effectuée avec succès.", MessageDialogStyle.Affirmative);
+            }
         }
 
         private void Start()
